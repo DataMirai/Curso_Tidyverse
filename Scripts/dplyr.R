@@ -99,10 +99,30 @@ Iris_tibble %>%
            'mediana'=median,  
            'Q3'=~quantile(.x,0.75), 
            'max'=max) )) %>% 
-  pivot_longer(cols=-Species, names_to = c('variables','funcion'), values_to = 'resumen',names_sep ='_') %>% 
-  group_by(Species,variables) %>%  nest()
+  pivot_longer(cols=-Species, names_to = c('variables','funcion'), values_to = 'resumen',names_sep ='_')  %>% 
+  # este warning es para indicar que puedes tener resultados erróneos en caso de que separador estre duplicado
+  # habría que reafinar la funcion con expresión regular.
+  pivot_wider(names_from = 'funcion', values_from = 'resumen')
+  
+# %>% 
+#   group_by(Species,variables) %>%  nest()
 
-
+Iris_tibble %>%  
+  group_by(Species) %>% 
+  summarize(
+    across(
+      everything(),
+      list('NA_count'=~sum(is.na(.x)),
+           'min'=min,
+           'Q1'=~quantile(.x,0.25), 
+           'media'=mean, 
+           'mediana'=median,  
+           'Q3'=~quantile(.x,0.75), 
+           'max'=max) )) %>% 
+  pivot_longer(cols=-Species, names_to = c('variables','funcion'), values_to = 'resumen',names_sep ='_')  %>% 
+  # este warning es para indicar que puedes tener resultados erróneos en caso de que separador estre duplicado
+  # habría que reafinar la funcion con expresión regular.
+  pivot_wider(names_from = 'funcion', values_from = 'resumen')
 
 
 Iris_tibble %>% 
@@ -114,4 +134,7 @@ Iris_tibble %>%
 # hay otras formas de slice
 Iris_tibble %>% 
   slice_max(Petal.Length)
+
+
+
 
